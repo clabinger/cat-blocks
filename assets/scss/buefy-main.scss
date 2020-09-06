@@ -1,0 +1,9 @@
+// Import customized Bulma/Buefy
+@import '~assets/scss/buefy-custom.scss';
+
+// Fonts
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500&family=Baloo+2:wght@400&display=swap');
+
+html, body, #__nuxt, #__layout {
+  height: 100%;
+}

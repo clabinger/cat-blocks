@@ -34,7 +34,13 @@ export default {
   ** Global CSS
   */
   css: [
+    '~assets/scss/buefy-main.scss'
   ],
+  styleResources: {
+    scss: [
+      '~assets/scss/buefy-variables.scss'
+    ]
+  },
   /*
   ** Plugins to load before mounting the App
   ** https://nuxtjs.org/guide/plugins
@@ -58,7 +64,8 @@ export default {
   */
   modules: [
     // Doc: https://buefy.github.io/#/documentation
-    'nuxt-buefy'
+    ['nuxt-buefy', { css: false }],
+    '@nuxtjs/style-resources' // Expose variables to components automatically. See styleResources configuration above
   ],
   /*
   ** Build configuration
