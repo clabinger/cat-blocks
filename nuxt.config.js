@@ -1,3 +1,8 @@
+const dev = process.env.DEPLOY_ENV !== 'prod'
+
+require('dotenv').config({
+  path: dev ? '.env' : 'prod.env'
+})
 
 export default {
   /*
