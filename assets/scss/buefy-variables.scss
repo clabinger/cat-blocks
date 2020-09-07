@@ -8,6 +8,13 @@ $input-shadow: none;
 $secondary: #7550A6;
 $tertiary: #4C9E57;
 
+$playerColors: (
+  $primary,
+  $danger,
+  $warning,
+  $tertiary
+);
+
 // Bulma's variables files
 @import '~bulma/sass/utilities/initial-variables.sass';
 @import '~bulma/sass/utilities/functions.sass';
