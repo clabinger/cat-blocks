@@ -72,7 +72,13 @@ export default {
   ** See https://nuxtjs.org/api/configuration-build/
   */
   build: {
-    extractCSS: !dev
+    extractCSS: !dev,
+    hotMiddleware: {
+      client: {
+        // turn off client overlay when errors are present
+        overlay: false
+      }
+    }
   },
   watchers: {
     webpack: {
