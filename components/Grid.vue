@@ -86,6 +86,8 @@ div.players {
 
 div.player {
   position: absolute;
+  transition: 200ms ease-in-out;
+  transition-property: transform;
 
   @include until($tablet) {
     width: $gridSizeMobile;
