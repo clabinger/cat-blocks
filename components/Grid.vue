@@ -1,9 +1,12 @@
 <template>
-  <div class="grid">
-    <div v-for="row in grid" :key="row.id" class="grid-row columns is-mobile is-centered">
-      <div v-for="cell in row.cells" :key="cell.id" class="grid-cell column is-paddingless">
-        <Cell v-bind="cell" />
+  <div class="grid-container">
+    <div class="grid">
+      <div v-for="row in grid" :key="row.id" class="grid-row">
+        <div v-for="cell in row.cells" :key="cell.id" class="grid-cell" />
       </div>
+    </div>
+    <div class="players">
+      <div v-for="player in players" :key="player.index" class="player" :class="['player-' + player.index, 'player-position-' + player.position[0] + '-' + player.position[1]]" />
     </div>
   </div>
 </template>
@@ -11,15 +14,13 @@
 <script>
 import { mapState } from 'vuex'
 
-import Cell from '~/components/Cell.vue'
-
 export default {
   components: {
-    Cell
   },
   computed: {
     ...mapState('game', [
-      'grid'
+      'grid',
+      'players'
     ])
   }
 }
@@ -28,54 +29,115 @@ export default {
 <style scoped lang="scss">
 
 $gridSizeDesktop: 160px;
+$marginSizeDesktop: 6px;
+
 $gridSizeTablet: 100px;
+$marginSizeTablet: 4px;
+
 $gridSizeMobile: 40px;
+$marginSizeMobile: 2px;
 
-.grid-cell {
-  background-color: $grey-lighter;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
+div.grid-container {
   @include until($tablet) {
-    flex: 0 0 $gridSizeMobile;
-    height: $gridSizeMobile;
-    border-radius: 4px;
-    margin: 2px;
-    & /deep/ .player {
-      width: $gridSizeMobile / 2;
-      height: $gridSizeMobile / 2;
-    }
+    height: 5 * $gridSizeMobile + 10 * $marginSizeMobile;
   }
   @include between($tablet, $desktop) {
-    flex: 0 0 $gridSizeTablet;
-    height: $gridSizeTablet;
-    border-radius: 8px;
-    margin: 4px;
-    & /deep/ .player {
-      width: $gridSizeTablet / 2.3;
-      height: $gridSizeTablet / 2.3;
-    }
+    height: 5 * $gridSizeTablet + 10 * $marginSizeTablet;
   }
   @include from($desktop) {
-    flex: 0 0 $gridSizeDesktop;
+    height: 5 * $gridSizeDesktop + 10 * $marginSizeDesktop;
+  }
+}
+
+div.grid {
+  position: absolute;
+}
+
+div.grid-row {
+  display: flex;
+}
+
+div.grid-cell {
+  background-color: $grey-lighter;
+
+  @include until($tablet) {
+    width: $gridSizeMobile;
+    height: $gridSizeMobile;
+    border-radius: 4px;
+    margin: $marginSizeMobile;
+  }
+  @include between($tablet, $desktop) {
+    width: $gridSizeTablet;
+    height: $gridSizeTablet;
+    border-radius: 8px;
+    margin: $marginSizeTablet;
+  }
+  @include from($desktop) {
+    width: $gridSizeDesktop;
     height: $gridSizeDesktop;
     border-radius: 12px;
-    margin: 6px;
-    & /deep/ .player {
-      width: $gridSizeDesktop / 2.5;
-      height: $gridSizeDesktop / 2.5;
-    }
+    margin: $marginSizeDesktop;
+  }
+}
+
+div.players {
+  position: absolute;
+}
+
+div.player {
+  position: absolute;
+
+  @include until($tablet) {
+    width: $gridSizeMobile;
+    height: $gridSizeMobile;
+    padding: $marginSizeMobile;
+    margin: $marginSizeMobile;
+  }
+  @include between($tablet, $desktop) {
+    width: $gridSizeTablet;
+    height: $gridSizeTablet;
+    padding: $marginSizeTablet;
+    margin: $marginSizeTablet;
+  }
+  @include from($desktop) {
+    width: $gridSizeDesktop;
+    height: $gridSizeDesktop;
+    padding: $marginSizeDesktop;
+    margin: $marginSizeDesktop;
   }
 
-  & /deep/ .player {
-    border-radius: 50%;
-    @each $index in (0,1,2,3) {
-      &.player-#{$index} {
-        background-color: nth($playerColors, $index + 1);
+  @each $index in (0,1,2,3) {
+    &.player-#{$index} {
+      background-image: url('~static/' + ($index + 1) + '.svg');
+      background-repeat: no-repeat;
+      background-position: center;
+
+      @include until($tablet) {
+        background-size: $gridSizeMobile / 1.6;
+      }
+      @include between($tablet, $desktop) {
+        background-size: $gridSizeTablet / 1.6;
+      }
+      @include from($desktop) {
+        background-size: $gridSizeDesktop / 1.6;
       }
     }
   }
 
+  @each $row in (0,1,2,3,4) {
+    @each $cell in (0,1,2,3,4) {
+      &.player-position-#{$row}-#{$cell} {
+        @include until($tablet) {
+          transform: translate($cell * ($gridSizeMobile + 2 * $marginSizeMobile), $row * ($gridSizeMobile + 2 * $marginSizeMobile));
+        }
+        @include between($tablet, $desktop) {
+          transform: translate($cell * ($gridSizeTablet + 2 * $marginSizeTablet), $row * ($gridSizeTablet + 2 * $marginSizeTablet));
+        }
+        @include from($desktop) {
+          transform: translate($cell * ($gridSizeDesktop + 2 * $marginSizeDesktop), $row * ($gridSizeDesktop + 2 * $marginSizeDesktop));
+        }
+      }
+    }
+  }
 }
 </style>
