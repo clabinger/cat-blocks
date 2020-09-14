@@ -16,6 +16,18 @@
       <button class="button is-danger" @click="endGame">
         End Game
       </button>
+      <button class="button is-primary" @click="movePlayers('up')">
+        Up
+      </button>
+      <button class="button is-primary" @click="movePlayers('down')">
+        Down
+      </button>
+      <button class="button is-primary" @click="movePlayers('left')">
+        Left
+      </button>
+      <button class="button is-primary" @click="movePlayers('right')">
+        Right
+      </button>
     </div>
   </div>
 </template>
@@ -32,7 +44,8 @@ export default {
   methods: {
     ...mapActions('game', [
       'startGame',
-      'endGame'
+      'endGame',
+      'movePlayers'
     ])
   }
 }

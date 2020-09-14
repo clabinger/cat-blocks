@@ -54,7 +54,16 @@ export const mutations = {
     Vue.set(state, 'grid', payload)
   },
   setPlayerPosition (state, payload) {
-    state.players[payload.playerIndex].position = payload.position
+    // Remove reference from old grid cell
+    const oldPosition = state.players[payload.playerIndex].position
+    if (oldPosition !== null) {
+      state.grid[oldPosition[0]].cells[oldPosition[1]].occupant = null
+    }
+
+    // Set player object
+    Vue.set(state.players[payload.playerIndex], 'position', [...payload.position])
+
+    // Set reference in grid cell
     state.grid[payload.position[0]].cells[payload.position[1]].occupant = payload.playerIndex
   }
 }
@@ -110,6 +119,30 @@ export const actions = {
       commit('setPlayerPosition', {
         playerIndex: index,
         position: positions[index]
+      })
+    })
+  },
+  movePlayers ({ commit, state }, direction) {
+    state.players.forEach((player, index) => {
+      const newPosition = [...player.position]
+
+      if (direction === 'up') {
+        newPosition[0] += -1 + state.height
+        newPosition[0] %= state.height
+      } else if (direction === 'down') {
+        newPosition[0] += 1 + state.height
+        newPosition[0] %= state.height
+      } else if (direction === 'left') {
+        newPosition[1] += -1 + state.width
+        newPosition[1] %= state.width
+      } else if (direction === 'right') {
+        newPosition[1] += 1 + state.width
+        newPosition[1] %= state.width
+      }
+
+      commit('setPlayerPosition', {
+        playerIndex: index,
+        position: newPosition
       })
     })
   }
