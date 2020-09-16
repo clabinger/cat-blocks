@@ -2,7 +2,7 @@
   <div class="grid-container">
     <div class="grid">
       <div v-for="row in grid" :key="row.id" class="grid-row">
-        <div v-for="cell in row.cells" :key="cell.id" class="grid-cell" />
+        <div v-for="cell in row.cells" :key="cell.id" class="grid-cell" :class="{ 'obstacle': cell.obstacle !== undefined }" />
       </div>
     </div>
     <div class="players">
@@ -59,6 +59,9 @@ div.grid-row {
 
 div.grid-cell {
   background-color: $grey-lighter;
+  &.obstacle {
+    background-color: $grey-dark;
+  }
 
   @include until($tablet) {
     width: $gridSizeMobile;

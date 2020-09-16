@@ -11,7 +11,7 @@ const getOpenPositions = (state) => {
 
   state.grid.forEach((row) => {
     row.cells.forEach((cell) => {
-      if (cell.occupant === undefined) {
+      if (cell.occupant === undefined && cell.obstacle === undefined) {
         openPositions.push(cell.position)
       }
     })
@@ -23,17 +23,22 @@ const getOpenPositions = (state) => {
 export const state = function () {
   return {
     started: false,
+    obstacles: [],
     players: [],
     turn: 0,
     grid: [],
     width: 5,
-    height: 5
+    height: 5,
+    obstacleCount: 6
   }
 }
 
 export const mutations = {
   setStarted (state, payload) {
     state.started = payload
+  },
+  setObstacles (state, payload) {
+    state.obstacles = payload
   },
   setPlayers (state, payload) {
     state.players = payload
@@ -43,6 +48,13 @@ export const mutations = {
   },
   setGrid (state, payload) {
     Vue.set(state, 'grid', payload)
+  },
+  setObstaclePosition (state, payload) {
+    // Set obstacle object
+    Vue.set(state.obstacles[payload.obstacleIndex], 'position', [...payload.position])
+
+    // Set reference in grid cell
+    state.grid[payload.position[0]].cells[payload.position[1]].obstacle = payload.obstacleIndex
   },
   setPlayerPosition (state, payload) {
     // Remove reference from old grid cell
@@ -67,10 +79,12 @@ export const actions = {
   startGame ({ commit, dispatch }, numPlayers) {
     commit('setStarted', true)
     dispatch('createGrid')
+    dispatch('createObstacles')
     dispatch('createPlayers', numPlayers)
   },
   endGame ({ commit }) {
     commit('setStarted', false)
+    commit('setObstacles', [])
     commit('setPlayers', [])
     commit('setTurn', 0)
     commit('setGrid', [])
@@ -91,6 +105,26 @@ export const actions = {
       grid.push(row)
     }
     commit('setGrid', grid)
+  },
+  createObstacles ({ commit, dispatch, state }) {
+    const obstacles = []
+
+    for (let i = 0; i < state.obstacleCount; i++) {
+      obstacles.push({
+        index: i,
+        position: null
+      })
+    }
+    commit('setObstacles', obstacles)
+    dispatch('positionObstacles')
+  },
+  positionObstacles ({ commit, state }) {
+    state.obstacles.forEach((obstacle, index) => {
+      commit('setObstaclePosition', {
+        obstacleIndex: index,
+        position: getRandomOpenPosition(state)
+      })
+    })
   },
   createPlayers ({ commit, dispatch }, numPlayers) {
     const players = []
