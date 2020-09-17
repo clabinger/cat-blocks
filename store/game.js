@@ -68,6 +68,9 @@ export const mutations = {
 
     // Set reference in grid cell
     state.grid[payload.position[0]].cells[payload.position[1]].occupant = payload.playerIndex
+  },
+  setPlayerMoveStatus (state, payload) {
+    state.players[payload.playerIndex].moved = payload.moved
   }
 }
 
@@ -132,7 +135,8 @@ export const actions = {
     for (let i = 0; i < numPlayers; i++) {
       players.push({
         index: i,
-        position: null
+        position: null,
+        moved: false // Track whether the player has moved yet for this turn. Resets each turn.
       })
     }
     commit('setPlayers', players)
@@ -147,26 +151,51 @@ export const actions = {
     })
   },
   movePlayers ({ commit, state }, direction) {
+    // Loop as many times as players, for worst-case scenario when the last player is blocked by all others
+    for (let attempt = 0; attempt < state.players.length; attempt++) {
+      state.players.forEach((player, index) => {
+        // If this player has already moved, do not try to move this player again
+        if (player.moved) {
+          return
+        }
+
+        const newPosition = [...player.position]
+
+        if (direction === 'up') {
+          newPosition[0] += -1 + state.height
+          newPosition[0] %= state.height
+        } else if (direction === 'down') {
+          newPosition[0] += 1 + state.height
+          newPosition[0] %= state.height
+        } else if (direction === 'left') {
+          newPosition[1] += -1 + state.width
+          newPosition[1] %= state.width
+        } else if (direction === 'right') {
+          newPosition[1] += 1 + state.width
+          newPosition[1] %= state.width
+        }
+
+        if (state.grid[newPosition[0]].cells[newPosition[1]].obstacle === undefined &&
+          state.grid[newPosition[0]].cells[newPosition[1]].occupant === undefined) {
+          commit('setPlayerPosition', {
+            playerIndex: index,
+            position: newPosition
+          })
+
+          // Mark the player as moved so it does not move again on the next loop
+          commit('setPlayerMoveStatus', {
+            playerIndex: index,
+            moved: true
+          })
+        }
+      })
+    }
+
+    // Reset all players for the next move
     state.players.forEach((player, index) => {
-      const newPosition = [...player.position]
-
-      if (direction === 'up') {
-        newPosition[0] += -1 + state.height
-        newPosition[0] %= state.height
-      } else if (direction === 'down') {
-        newPosition[0] += 1 + state.height
-        newPosition[0] %= state.height
-      } else if (direction === 'left') {
-        newPosition[1] += -1 + state.width
-        newPosition[1] %= state.width
-      } else if (direction === 'right') {
-        newPosition[1] += 1 + state.width
-        newPosition[1] %= state.width
-      }
-
-      commit('setPlayerPosition', {
+      commit('setPlayerMoveStatus', {
         playerIndex: index,
-        position: newPosition
+        moved: false
       })
     })
   }
