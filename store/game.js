@@ -11,7 +11,7 @@ const getOpenPositions = (state) => {
 
   state.grid.forEach((row) => {
     row.cells.forEach((cell) => {
-      if (cell.occupant === undefined && cell.obstacle === undefined) {
+      if (cell.occupant === undefined && cell.object === undefined) {
         openPositions.push(cell.position)
       }
     })
@@ -23,13 +23,18 @@ const getOpenPositions = (state) => {
 export const state = function () {
   return {
     started: false,
-    obstacles: [],
+    objects: [],
     players: [],
     turn: 0,
     grid: [],
     width: 5,
     height: 5,
-    obstacleCount: 6
+    objectTypes: {
+      wall: {
+        isObstacle: true,
+        count: 6
+      }
+    }
   }
 }
 
@@ -37,8 +42,8 @@ export const mutations = {
   setStarted (state, payload) {
     state.started = payload
   },
-  setObstacles (state, payload) {
-    state.obstacles = payload
+  setObjects (state, payload) {
+    state.objects = payload
   },
   setPlayers (state, payload) {
     state.players = payload
@@ -49,12 +54,17 @@ export const mutations = {
   setGrid (state, payload) {
     Vue.set(state, 'grid', payload)
   },
-  setObstaclePosition (state, payload) {
-    // Set obstacle object
-    Vue.set(state.obstacles[payload.obstacleIndex], 'position', [...payload.position])
+  setObjectPosition (state, payload) {
+    // Set object object
+    Vue.set(state.objects[payload.objectIndex], 'position', [...payload.position])
 
     // Set reference in grid cell
-    state.grid[payload.position[0]].cells[payload.position[1]].obstacle = payload.obstacleIndex
+    state.grid[payload.position[0]].cells[payload.position[1]].object = payload.objectData
+
+    // Set obstacle flag if the object is an obstacle
+    if (payload.objectData.isObstacle) {
+      state.grid[payload.position[0]].cells[payload.position[1]].obstacle = true
+    }
   },
   setPlayerPosition (state, payload) {
     // Remove reference from old grid cell
@@ -82,12 +92,12 @@ export const actions = {
   startGame ({ commit, dispatch }, numPlayers) {
     commit('setStarted', true)
     dispatch('createGrid')
-    dispatch('createObstacles')
+    dispatch('createObjects')
     dispatch('createPlayers', numPlayers)
   },
   endGame ({ commit }) {
     commit('setStarted', false)
-    commit('setObstacles', [])
+    commit('setObjects', [])
     commit('setPlayers', [])
     commit('setTurn', 0)
     commit('setGrid', [])
@@ -109,23 +119,29 @@ export const actions = {
     }
     commit('setGrid', grid)
   },
-  createObstacles ({ commit, dispatch, state }) {
-    const obstacles = []
+  createObjects ({ commit, dispatch, state }) {
+    const objects = []
 
-    for (let i = 0; i < state.obstacleCount; i++) {
-      obstacles.push({
-        index: i,
-        position: null
-      })
+    for (const [type, typeData] of Object.entries(state.objectTypes)) {
+      for (let i = 0; i < typeData.count; i++) {
+        objects.push({
+          index: objects.length,
+          position: null,
+          isObstacle: typeData.isObstacle,
+          type
+        })
+      }
     }
-    commit('setObstacles', obstacles)
-    dispatch('positionObstacles')
+
+    commit('setObjects', objects)
+    dispatch('positionObjects')
   },
-  positionObstacles ({ commit, state }) {
-    state.obstacles.forEach((obstacle, index) => {
-      commit('setObstaclePosition', {
-        obstacleIndex: index,
-        position: getRandomOpenPosition(state)
+  positionObjects ({ commit, state }) {
+    state.objects.forEach((object, index) => {
+      commit('setObjectPosition', {
+        objectIndex: index,
+        position: getRandomOpenPosition(state),
+        objectData: object
       })
     })
   },

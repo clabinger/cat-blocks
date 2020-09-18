@@ -2,7 +2,7 @@
   <div class="grid-container">
     <div class="grid">
       <div v-for="row in grid" :key="row.id" class="grid-row">
-        <div v-for="cell in row.cells" :key="cell.id" class="grid-cell" :class="{ 'obstacle': cell.obstacle !== undefined }" />
+        <div v-for="cell in row.cells" :key="cell.id" class="grid-cell" :class="cell.object !== undefined ? 'object object-' + cell.object.type + ' object-' + cell.object.type + '-' + cell.object.index : null" />
       </div>
     </div>
     <div class="players">
@@ -59,7 +59,8 @@ div.grid-row {
 
 div.grid-cell {
   background-color: $grey-lighter;
-  &.obstacle {
+
+  &.object-wall {
     background-color: $grey-dark;
   }
 
